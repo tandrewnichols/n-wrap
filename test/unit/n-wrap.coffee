@@ -12,6 +12,8 @@ describe 'n-wrap', ->
         #{chalk.green('foo')}: blah   
     bar: #{chalk.red('huzzah')}
   """
+  Given -> @versions = chalk.green('   2.1.2\n3.4.1\no 3.9.9')
+  Given -> @versionsArr = ['2.1.2', '3.4.1', '3.9.9']
   Given -> @clean = 'foo: blah\nbar: huzzah'
   Given -> @syncRes =
     stdout: @output
@@ -169,23 +171,25 @@ describe 'n-wrap', ->
   describe '.list', ->
     context 'async', ->
       Given -> @cp.spawn.withArgs('n', ['ls']).returns @child
-      Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
+      Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @versions
       Given -> @child.stdout.on.withArgs('close').callsArg 1
       When -> @subject.list @cb
-      Then -> @cb.calledWith(null, @clean).should.be.true()
+      Then -> @cb.calledWith(null, @versionsArr).should.be.true()
       
     context 'sync', ->
+      Given -> @syncRes.stdout = @versions
       Given -> @spawnSync.withArgs('n', ['ls']).returns @syncRes
-      Then -> @subject.list().should.eql @clean
+      Then -> @subject.ls().should.eql @versionsArr
 
   describe '.ls', ->
     context 'async', ->
       Given -> @cp.spawn.withArgs('n', ['ls']).returns @child
-      Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
+      Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @versions
       Given -> @child.stdout.on.withArgs('close').callsArg 1
       When -> @subject.ls @cb
-      Then -> @cb.calledWith(null, @clean).should.be.true()
+      Then -> @cb.calledWith(null, @versionsArr).should.be.true()
       
     context 'sync', ->
+      Given -> @syncRes.stdout = @versions
       Given -> @spawnSync.withArgs('n', ['ls']).returns @syncRes
-      Then -> @subject.ls().should.eql @clean
+      Then -> @subject.ls().should.eql @versionsArr
