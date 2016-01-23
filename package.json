@@ -32,8 +32,10 @@
   "homepage": "https://github.com/tandrewnichols/n-wrap",
   "dependencies": {
     "lodash": "^4.0.0",
+    "opted": "^1.0.0",
     "spawn-sync": "^1.0.15",
-    "strip-ansi": "^3.0.0"
+    "strip-ansi": "^3.0.0",
+    "varity": "^1.0.4"
   },
   "devDependencies": {
     "chalk": "^1.1.1",

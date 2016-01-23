@@ -30,19 +30,7 @@ describe 'n-wrap', ->
   Given -> @cb = sinon.stub()
 
   context 'node', ->
-    describe 'exported function', ->
-      context 'async', ->
-        Given -> @cp.spawn.withArgs('n', ['0.10']).returns @child
-        Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
-        When -> @subject '0.10', @cb
-        Then -> @cb.calledWith(null, @clean).should.be.true()
-
-      context 'sync', ->
-        Given -> @spawnSync.withArgs('n', ['0.10']).returns @syncRes
-        Then -> @subject('0.10').should.eql @clean
-      
-    describe '.install', ->
+    describe 'n', ->
       context 'async', ->
         context 'no error', ->
           Given -> @cp.spawn.withArgs('n', ['0.10']).returns @child
@@ -50,6 +38,28 @@ describe 'n-wrap', ->
           Given -> @child.stdout.on.withArgs('close').callsArg 1
           When -> @subject '0.10', @cb
           Then -> @cb.calledWith(null, @clean).should.be.true()
+
+        context 'with options', ->
+          context 'arch', ->
+            Given -> @cp.spawn.withArgs('n', ['-a', 'x86', '0.10']).returns @child
+            Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
+            Given -> @child.stdout.on.withArgs('close').callsArg 1
+            When -> @subject '0.10', { a: 'x86' }, @cb
+            Then -> @cb.calledWith(null, @clean).should.be.true()
+
+          context 'download', ->
+            Given -> @cp.spawn.withArgs('n', ['--download', '0.10']).returns @child
+            Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
+            Given -> @child.stdout.on.withArgs('close').callsArg 1
+            When -> @subject '0.10', { download: true }, @cb
+            Then -> @cb.calledWith(null, @clean).should.be.true()
+
+          context 'quiet', ->
+            Given -> @cp.spawn.withArgs('n', ['-q', '0.10']).returns @child
+            Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
+            Given -> @child.stdout.on.withArgs('close').callsArg 1
+            When -> @subject '0.10', { q: true }, @cb
+            Then -> @cb.calledWith(null, @clean).should.be.true()
 
         context 'error spawning', ->
           Given -> @cp.spawn.withArgs('n', ['0.10']).returns @child
@@ -156,6 +166,13 @@ describe 'n-wrap', ->
         Given -> @spawnSync.withArgs('n', ['use', '0.10']).returns @syncRes
         Then -> @subject.use('0.10').should.eql @clean
 
+      context 'with a command', ->
+        Given -> @cp.spawn.withArgs('n', ['use', '0.10', 'foo', 'bar']).returns @child
+        Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
+        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        When -> @subject.use '0.10', ['foo', 'bar'], @cb
+        Then -> @cb.calledWith(null, @clean).should.be.true()
+
     describe '.as', ->
       context 'async', ->
         Given -> @cp.spawn.withArgs('n', ['use', '0.10']).returns @child
@@ -167,6 +184,13 @@ describe 'n-wrap', ->
       context 'sync', ->
         Given -> @spawnSync.withArgs('n', ['use', '0.10']).returns @syncRes
         Then -> @subject.as('0.10').should.eql @clean
+
+      context 'with a command', ->
+        Given -> @cp.spawn.withArgs('n', ['use', '0.10', 'foo', 'bar']).returns @child
+        Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
+        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        When -> @subject.as '0.10', ['foo', 'bar'], @cb
+        Then -> @cb.calledWith(null, @clean).should.be.true()
 
     describe '.list', ->
       context 'async', ->
@@ -195,19 +219,7 @@ describe 'n-wrap', ->
         Then -> @subject.ls().should.eql @versionsArr
 
   context 'io', ->
-    describe 'exported function', ->
-      context 'async', ->
-        Given -> @cp.spawn.withArgs('n', ['io', '0.10']).returns @child
-        Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
-        When -> @subject.io '0.10', @cb
-        Then -> @cb.calledWith(null, @clean).should.be.true()
-
-      context 'sync', ->
-        Given -> @spawnSync.withArgs('n', ['io', '0.10']).returns @syncRes
-        Then -> @subject.io('0.10').should.eql @clean
-      
-    describe '.install', ->
+    describe 'n', ->
       context 'async', ->
         context 'no error', ->
           Given -> @cp.spawn.withArgs('n', ['io', '0.10']).returns @child
@@ -237,7 +249,6 @@ describe 'n-wrap', ->
           Given -> @child.stdout.on.withArgs('close').callsArg 1
           When -> @subject.io '0.10', @cb
           Then -> @cb.calledWith('stuff happened').should.be.true()
-          
 
       context 'sync', ->
         context 'no error', ->
@@ -260,7 +271,7 @@ describe 'n-wrap', ->
           context 'with no error or stderr', ->
             Given -> @syncRes.status = 1
             Given -> @spawnSync.withArgs('n', ['io', '0.10']).returns @syncRes
-            Then -> ( => @subject.io('0.10') ).should.throw('Unknown error running n ioe0.10')
+            Then -> ( => @subject.io('0.10') ).should.throw('Unknown error running n io 0.10')
 
     describe '.remove', ->
       context 'async', ->
