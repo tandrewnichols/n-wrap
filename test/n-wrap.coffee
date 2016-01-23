@@ -35,7 +35,7 @@ describe 'n-wrap', ->
         context 'no error', ->
           Given -> @cp.spawn.withArgs('n', ['0.10']).returns @child
           Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-          Given -> @child.stdout.on.withArgs('close').callsArg 1
+          Given -> @child.on.withArgs('close').callsArg 1
           When -> @subject '0.10', @cb
           Then -> @cb.calledWith(null, @clean).should.be.true()
 
@@ -43,35 +43,35 @@ describe 'n-wrap', ->
           context 'arch', ->
             Given -> @cp.spawn.withArgs('n', ['-a', 'x86', '0.10']).returns @child
             Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-            Given -> @child.stdout.on.withArgs('close').callsArg 1
+            Given -> @child.on.withArgs('close').callsArg 1
             When -> @subject '0.10', { a: 'x86' }, @cb
             Then -> @cb.calledWith(null, @clean).should.be.true()
 
           context 'download', ->
             Given -> @cp.spawn.withArgs('n', ['--download', '0.10']).returns @child
             Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-            Given -> @child.stdout.on.withArgs('close').callsArg 1
+            Given -> @child.on.withArgs('close').callsArg 1
             When -> @subject '0.10', { download: true }, @cb
             Then -> @cb.calledWith(null, @clean).should.be.true()
 
           context 'quiet', ->
             Given -> @cp.spawn.withArgs('n', ['-q', '0.10']).returns @child
             Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-            Given -> @child.stdout.on.withArgs('close').callsArg 1
+            Given -> @child.on.withArgs('close').callsArg 1
             When -> @subject '0.10', { q: true }, @cb
             Then -> @cb.calledWith(null, @clean).should.be.true()
 
         context 'error spawning', ->
           Given -> @cp.spawn.withArgs('n', ['0.10']).returns @child
           Given -> @child.on.withArgs('error').callsArgWith 1, 'stuff happened'
-          Given -> @child.stdout.on.withArgs('close').callsArg 1
+          Given -> @child.on.withArgs('close').callsArg 1
           When -> @subject '0.10', @cb
           Then -> @cb.calledWith('stuff happened').should.be.true()
 
         context 'error with command', ->
           Given -> @cp.spawn.withArgs('n', ['0.10']).returns @child
           Given -> @child.stderr.on.withArgs('data').callsArgWith 1, 'stuff happened'
-          Given -> @child.stdout.on.withArgs('close').callsArg 1
+          Given -> @child.on.withArgs('close').callsArg 1
           When -> @subject '0.10', @cb
           Then -> @cb.calledWith(sinon.match.instanceOf(Error)).should.be.true()
 
@@ -79,7 +79,7 @@ describe 'n-wrap', ->
           Given -> @cp.spawn.withArgs('n', ['0.10']).returns @child
           Given -> @child.stderr.on.withArgs('data').callsArgWith 1, 'other stuff happened'
           Given -> @child.on.withArgs('error').callsArgWith 1, 'stuff happened'
-          Given -> @child.stdout.on.withArgs('close').callsArg 1
+          Given -> @child.on.withArgs('close').callsArg 1
           When -> @subject '0.10', @cb
           Then -> @cb.calledWith('stuff happened').should.be.true()
           
@@ -110,7 +110,7 @@ describe 'n-wrap', ->
       context 'async', ->
         Given -> @cp.spawn.withArgs('n', ['rm', '0.10']).returns @child
         Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.remove '0.10', @cb
         Then -> @cb.calledWith(null, @clean).should.be.true()
         
@@ -122,7 +122,7 @@ describe 'n-wrap', ->
       context 'async', ->
         Given -> @cp.spawn.withArgs('n', ['rm', '0.10']).returns @child
         Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.rm '0.10', @cb
         Then -> @cb.calledWith(null, @clean).should.be.true()
         
@@ -134,7 +134,7 @@ describe 'n-wrap', ->
       context 'async', ->
         Given -> @cp.spawn.withArgs('n', ['bin', '0.10']).returns @child
         Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.bin '0.10', @cb
         Then -> @cb.calledWith(null, @clean).should.be.true()
         
@@ -146,7 +146,7 @@ describe 'n-wrap', ->
       context 'async', ->
         Given -> @cp.spawn.withArgs('n', ['bin', '0.10']).returns @child
         Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.which '0.10', @cb
         Then -> @cb.calledWith(null, @clean).should.be.true()
         
@@ -156,47 +156,43 @@ describe 'n-wrap', ->
 
     describe '.use', ->
       context 'async', ->
-        Given -> @cp.spawn.withArgs('n', ['use', '0.10']).returns @child
-        Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @cp.spawn.withArgs('n', ['use', '0.10'], { stdio: 'inherit' }).returns @child
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.use '0.10', @cb
-        Then -> @cb.calledWith(null, @clean).should.be.true()
+        Then -> @cb.calledWith(null, '').should.be.true()
         
       context 'sync', ->
         Given -> @spawnSync.withArgs('n', ['use', '0.10']).returns @syncRes
         Then -> @subject.use('0.10').should.eql @clean
 
       context 'with a command', ->
-        Given -> @cp.spawn.withArgs('n', ['use', '0.10', 'foo', 'bar']).returns @child
-        Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @cp.spawn.withArgs('n', ['use', '0.10', 'foo', 'bar'], { stdio: 'inherit' }).returns @child
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.use '0.10', ['foo', 'bar'], @cb
-        Then -> @cb.calledWith(null, @clean).should.be.true()
+        Then -> @cb.calledWith(null, '').should.be.true()
 
     describe '.as', ->
       context 'async', ->
-        Given -> @cp.spawn.withArgs('n', ['use', '0.10']).returns @child
-        Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @cp.spawn.withArgs('n', ['use', '0.10'], { stdio: 'inherit' }).returns @child
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.as '0.10', @cb
-        Then -> @cb.calledWith(null, @clean).should.be.true()
+        Then -> @cb.calledWith(null, '').should.be.true()
         
       context 'sync', ->
         Given -> @spawnSync.withArgs('n', ['use', '0.10']).returns @syncRes
         Then -> @subject.as('0.10').should.eql @clean
 
       context 'with a command', ->
-        Given -> @cp.spawn.withArgs('n', ['use', '0.10', 'foo', 'bar']).returns @child
-        Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @cp.spawn.withArgs('n', ['use', '0.10', 'foo', 'bar'], { stdio: 'inherit' }).returns @child
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.as '0.10', ['foo', 'bar'], @cb
-        Then -> @cb.calledWith(null, @clean).should.be.true()
+        Then -> @cb.calledWith(null, '').should.be.true()
 
     describe '.list', ->
       context 'async', ->
         Given -> @cp.spawn.withArgs('n', ['ls']).returns @child
         Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @versions
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.list @cb
         Then -> @cb.calledWith(null, @versionsArr).should.be.true()
         
@@ -209,7 +205,7 @@ describe 'n-wrap', ->
       context 'async', ->
         Given -> @cp.spawn.withArgs('n', ['ls']).returns @child
         Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @versions
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.ls @cb
         Then -> @cb.calledWith(null, @versionsArr).should.be.true()
         
@@ -224,21 +220,21 @@ describe 'n-wrap', ->
         context 'no error', ->
           Given -> @cp.spawn.withArgs('n', ['io', '0.10']).returns @child
           Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-          Given -> @child.stdout.on.withArgs('close').callsArg 1
+          Given -> @child.on.withArgs('close').callsArg 1
           When -> @subject.io '0.10', @cb
           Then -> @cb.calledWith(null, @clean).should.be.true()
 
         context 'error spawning', ->
           Given -> @cp.spawn.withArgs('n', ['io', '0.10']).returns @child
           Given -> @child.on.withArgs('error').callsArgWith 1, 'stuff happened'
-          Given -> @child.stdout.on.withArgs('close').callsArg 1
+          Given -> @child.on.withArgs('close').callsArg 1
           When -> @subject.io '0.10', @cb
           Then -> @cb.calledWith('stuff happened').should.be.true()
 
         context 'error with command', ->
           Given -> @cp.spawn.withArgs('n', ['io', '0.10']).returns @child
           Given -> @child.stderr.on.withArgs('data').callsArgWith 1, 'stuff happened'
-          Given -> @child.stdout.on.withArgs('close').callsArg 1
+          Given -> @child.on.withArgs('close').callsArg 1
           When -> @subject.io '0.10', @cb
           Then -> @cb.calledWith(sinon.match.instanceOf(Error)).should.be.true()
 
@@ -246,7 +242,7 @@ describe 'n-wrap', ->
           Given -> @cp.spawn.withArgs('n', ['io', '0.10']).returns @child
           Given -> @child.stderr.on.withArgs('data').callsArgWith 1, 'other stuff happened'
           Given -> @child.on.withArgs('error').callsArgWith 1, 'stuff happened'
-          Given -> @child.stdout.on.withArgs('close').callsArg 1
+          Given -> @child.on.withArgs('close').callsArg 1
           When -> @subject.io '0.10', @cb
           Then -> @cb.calledWith('stuff happened').should.be.true()
 
@@ -277,7 +273,7 @@ describe 'n-wrap', ->
       context 'async', ->
         Given -> @cp.spawn.withArgs('n', ['io', 'rm', '0.10']).returns @child
         Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.io.remove '0.10', @cb
         Then -> @cb.calledWith(null, @clean).should.be.true()
         
@@ -289,7 +285,7 @@ describe 'n-wrap', ->
       context 'async', ->
         Given -> @cp.spawn.withArgs('n', ['io', 'rm', '0.10']).returns @child
         Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.io.rm '0.10', @cb
         Then -> @cb.calledWith(null, @clean).should.be.true()
         
@@ -301,7 +297,7 @@ describe 'n-wrap', ->
       context 'async', ->
         Given -> @cp.spawn.withArgs('n', ['io', 'bin', '0.10']).returns @child
         Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.io.bin '0.10', @cb
         Then -> @cb.calledWith(null, @clean).should.be.true()
         
@@ -313,7 +309,7 @@ describe 'n-wrap', ->
       context 'async', ->
         Given -> @cp.spawn.withArgs('n', ['io', 'bin', '0.10']).returns @child
         Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.io.which '0.10', @cb
         Then -> @cb.calledWith(null, @clean).should.be.true()
         
@@ -323,23 +319,25 @@ describe 'n-wrap', ->
 
     describe '.use', ->
       context 'async', ->
-        Given -> @cp.spawn.withArgs('n', ['io', 'use', '0.10']).returns @child
-        Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @cp.spawn.withArgs('n', ['io', 'use', '0.10'], { stdio: 'inherit' }).returns @child
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.io.use '0.10', @cb
-        Then -> @cb.calledWith(null, @clean).should.be.true()
+        Then -> @cb.calledWith(null, '').should.be.true()
         
       context 'sync', ->
         Given -> @spawnSync.withArgs('n', ['io', 'use', '0.10']).returns @syncRes
         Then -> @subject.io.use('0.10').should.eql @clean
 
+      context 'sync with no stdout', ->
+        Given -> @spawnSync.withArgs('n', ['io', 'use', '0.10']).returns {}
+        Then -> @subject.io.use('0.10').should.eql ''
+
     describe '.as', ->
       context 'async', ->
-        Given -> @cp.spawn.withArgs('n', ['io', 'use', '0.10']).returns @child
-        Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @output
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @cp.spawn.withArgs('n', ['io', 'use', '0.10'], { stdio: 'inherit' }).returns @child
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.io.as '0.10', @cb
-        Then -> @cb.calledWith(null, @clean).should.be.true()
+        Then -> @cb.calledWith(null, '').should.be.true()
         
       context 'sync', ->
         Given -> @spawnSync.withArgs('n', ['io', 'use', '0.10']).returns @syncRes
@@ -349,7 +347,7 @@ describe 'n-wrap', ->
       context 'async', ->
         Given -> @cp.spawn.withArgs('n', ['io', 'ls']).returns @child
         Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @versions
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.io.list @cb
         Then -> @cb.calledWith(null, @versionsArr).should.be.true()
         
@@ -362,7 +360,7 @@ describe 'n-wrap', ->
       context 'async', ->
         Given -> @cp.spawn.withArgs('n', ['io', 'ls']).returns @child
         Given -> @child.stdout.on.withArgs('data').callsArgWith 1, @versions
-        Given -> @child.stdout.on.withArgs('close').callsArg 1
+        Given -> @child.on.withArgs('close').callsArg 1
         When -> @subject.io.ls @cb
         Then -> @cb.calledWith(null, @versionsArr).should.be.true()
         
