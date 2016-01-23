@@ -1,7 +1,7 @@
 {
   "name": "n-wrap",
   "description": "Node wrapper for the n binary manager",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "lib/n-wrap.js",
   "scripts": {
     "test": "gulp"
